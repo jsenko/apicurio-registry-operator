@@ -1,6 +1,6 @@
 module github.com/Apicurio/apicurio-registry-operator
 
-go 1.20
+go 1.23
 
 toolchain go1.23.6
 
