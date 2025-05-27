@@ -5,6 +5,18 @@ metadata:
   name: apicurio-registry-operator-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - persistentvolumeclaims
+  - pods
+  - secrets
+  - services
+  - services/finalizers
+  verbs:
+  - '*'
+- apiGroups:
   - apps
   resources:
   - daemonsets
@@ -19,18 +31,6 @@ rules:
   - clusterversions
   verbs:
   - get
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  - endpoints
-  - persistentvolumeclaims
-  - pods
-  - secrets
-  - services
-  - services/finalizers
-  verbs:
-  - '*'
 - apiGroups:
   - events
   resources:
@@ -47,11 +47,6 @@ rules:
   - networking.k8s.io
   resources:
   - ingresses
-  verbs:
-  - '*'
-- apiGroups:
-  - networking.k8s.io
-  resources:
   - networkpolicies
   verbs:
   - '*'

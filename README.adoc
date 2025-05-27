@@ -12,9 +12,9 @@ The Apicurio Registry Operator supports the following platform versions:
 |===
 | Platform | Required version
 | Kubernetes
-| 1.19+
+| 1.25+
 | OpenShift
-| 4.6+
+| 4.12+
 |===
 
 == Build Requirements

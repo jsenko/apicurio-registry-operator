@@ -9,10 +9,10 @@ The {operator} supports the following platform versions:
 | Platform | Required version
 ifdef::apicurio-registry[]
 | Kubernetes
-| 1.19+
+| 1.25+
 endif::[]
 | OpenShift
-| 4.6+
+| 4.12+
 |===
 
 NOTE: {operator} does not yet deploy and manage {registry} storage. You must ensure that storage options such as Kafka or PostgreSQL are installed and configured.

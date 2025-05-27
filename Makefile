@@ -184,8 +184,8 @@ endef
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 .PHONY: install-controller-gen
-install-controller-gen: ## Install controller-gen@v0.13.0
-	$(call go-install-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.13.0)
+install-controller-gen: ## Install controller-gen@v0.17.3
+	$(call go-install-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.17.3)
 
 
 KUSTOMIZE = $(shell pwd)/bin/kustomize
@@ -193,6 +193,10 @@ KUSTOMIZE = $(shell pwd)/bin/kustomize
 install-kustomize: ## Install kustomize@v4.5.5
 	$(call go-install-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v4@v4.5.5)
 
+SETUP_ENVTEST = $(shell pwd)/bin/setup-envtest
+.PHONY: install-setup-envtest
+install-setup-envtest: ## Install setup-envtest@v0.20
+	$(call go-install-tool,$(SETUP_ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.20)
 
 YQ_VERSION?="4.27.5"
 YQ = $(shell pwd)/bin/yq
@@ -285,13 +289,13 @@ test: generate go-fmt go-vet ## Run unit tests
 	go test ./controllers/...
 
 
-ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
-ENVTEST_K8S_VERSION?=1.28
+ENVTEST_K8S_VERSION_LOW ?= 1.25
+ENVTEST_K8S_VERSION_HIGH ?= 1.33
+BIN_DIR=$(shell pwd)/bin
 .PHONY: envtest
-envtest: generate go-fmt go-vet manifests ## Run integration tests using envtest
-	mkdir -p ${ENVTEST_ASSETS_DIR}
-	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.7.0/hack/setup-envtest.sh
-	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./test/envtest/... -coverprofile cover.out
+envtest: install-setup-envtest generate go-fmt go-vet manifests ## Run integration tests using envtest
+	KUBEBUILDER_ASSETS="$(shell $(SETUP_ENVTEST) use $(ENVTEST_K8S_VERSION_LOW) --bin-dir $(BIN_DIR) -p path)" go test ./test/envtest/... -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(SETUP_ENVTEST) use $(ENVTEST_K8S_VERSION_HIGH) --bin-dir $(BIN_DIR) -p path)" go test ./test/envtest/... -coverprofile cover.out
 
 
 .PHONY: deploy
@@ -342,10 +346,10 @@ bundle: manifests install-operator-sdk install-yq ## Generate bundle manifests a
 	$(YQ) e ".spec.install.spec.deployments[0].name = .spec.install.spec.deployments[0].name + \"-v$(OPERATOR_VERSION)\"" -i "$(BUNDLE_DIR)/manifests/apicurio-registry-operator.clusterserviceversion.yaml"
 	# Post-process bundle
 	$(YQ) e "... comments=\"\"" -i "$(BUNDLE_DIR)/metadata/annotations.yaml"
-	$(YQ) e ".annotations.\"com.redhat.openshift.versions\" = \"v4.6\"" -i "$(BUNDLE_DIR)/metadata/annotations.yaml"
+	$(YQ) e ".annotations.\"com.redhat.openshift.versions\" = \"v4.12\"" -i "$(BUNDLE_DIR)/metadata/annotations.yaml"
 	$(YQ) e "sort_keys(..)" -i "$(BUNDLE_DIR)/metadata/annotations.yaml"
 	cp bundle.Dockerfile $(BUNDLE_DIR)
-	sed -i 's/^FROM scratch$$/FROM scratch\n\nLABEL com.redhat.openshift.versions=v4.6/g' "$(BUNDLE_DIR)/bundle.Dockerfile"
+	sed -i 's/^FROM scratch$$/FROM scratch\n\nLABEL com.redhat.openshift.versions=v4.12/g' "$(BUNDLE_DIR)/bundle.Dockerfile"
 	$(OPERATOR_SDK) bundle validate $(BUNDLE_DIR)
 
 
@@ -440,7 +444,7 @@ licenses: ## Generate license list
 .PHONY: clean
 clean: ## Remove temporary and generated files
 	@rm apicurio-registry-operator-$(PACKAGE_VERSION).tar.gz cover.out 2>/dev/null || true
-	@rm -r bin build bundle dist docs/target testbin 2>/dev/null || true
+	@rm -r bin build bundle dist docs/target 2>/dev/null || true
 
 
 .PHONY: catalog-build

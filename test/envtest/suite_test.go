@@ -46,10 +46,6 @@ var _ = BeforeSuite(func() {
 
 	s.log.Sugar().Infow("path", "root", root)
 
-	Expect(os.Setenv("TEST_ASSET_KUBE_APISERVER", root+"/testbin/bin/kube-apiserver")).To(Succeed())
-	Expect(os.Setenv("TEST_ASSET_ETCD", root+"/testbin/bin/etcd")).To(Succeed())
-	Expect(os.Setenv("TEST_ASSET_KUBECTL", root+"/testbin/bin/kubectl")).To(Succeed())
-
 	s.ctx, cancel = context.WithCancel(context.TODO())
 
 	testEnv = &envtest.Environment{
