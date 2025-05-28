@@ -1,3 +1,6 @@
+WARNING: ⚠️ **This repository is in maintenance-only mode and will be archived in the near future.**
+         Apicurio Registry 2 Operator has been deprecated. We have created a https://github.com/Apicurio/apicurio-registry/tree/main/operator[new Quarkus-based operator for Apicurio Registry 3].
+
 = Apicurio Registry Operator
 
 Apicurio Registry Operator provides a quick and easy way to deploy and manage
