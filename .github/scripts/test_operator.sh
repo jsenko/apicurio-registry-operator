@@ -7,7 +7,7 @@ fi
 OPERATOR_VERSION_SUFFIX=$(echo "$OPERATOR_VERSION" | sed -n 's/^[0-9\.]*-\([^-+]*\).*$/-\1/p')
 
 if [[ ! $OPERAND_VERSION ]]; then
-  OPERAND_VERSION="2.x"
+  OPERAND_VERSION="2.6.x"
 fi
 LC_OPERAND_VERSION=$(echo $OPERAND_VERSION | tr A-Z a-z)
 
